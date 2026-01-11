@@ -21,23 +21,27 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
-function AltaMuseo() {
+function AltaSala() {
   const navigate = useNavigate();
 
-  const [museo, setMuseo] = useState({
+  const [sala, setSala] = useState({
     name: "",
-    city: "",
-    annual_budget: "",
-    is_public: "",
+    capacity: "",
+    area: "",
+    is_climatized: "",
     opening_date: "",
+    museum_id: "",
   });
+
+  const [museos, setMuseos] = useState([]);
 
   const [isCamposValidos, setIsCamposValidos] = useState({
     name: true,
-    city: true,
-    annual_budget: true,
-    is_public: true,
+    capacity: true,
+    area: true,
+    is_climatized: true,
     opening_date: true,
+    museum_id: true,
   });
 
   const [isUpdating, setIsUpdating] = useState(false);
@@ -45,13 +49,31 @@ function AltaMuseo() {
   const [dialogMessage, setDialogMessage] = useState("");
   const [dialogSeverity, setDialogSeverity] = useState("success");
 
+  /* Fetch de museos para el desplegable */
   useEffect(() => {
-    async function fetchCreateMuseum() {
+    async function fetchMuseos() {
       try {
-        const response = await fetch("http://localhost:3000/api/museums/", {
+        const response = await fetch("http://localhost:3000/api/museums/");
+        if (response.ok) {
+          const datos = await response.json();
+          setMuseos(datos.datos);
+        }
+      } catch (e) {
+        console.error("Error cargando museos:", e);
+      }
+    }
+
+    fetchMuseos();
+  }, []);
+
+  /* Post para crear la sala */
+  useEffect(() => {
+    async function fetchCreateRoom() {
+      try {
+        const response = await fetch("http://localhost:3000/api/rooms/", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(museo),
+          body: JSON.stringify(sala),
         });
 
         if (response.ok) {
@@ -60,25 +82,24 @@ function AltaMuseo() {
           setDialogSeverity("success");
           setOpenDialog(true);
         } else {
-          console.error(`Error ${response.status}:`, response.statusText);
           setDialogMessage("Error del servidor");
           setDialogSeverity("error");
           setOpenDialog(true);
         }
       } catch (e) {
-        console.error("Error en fetch:", e);
         setDialogMessage(`Error de conexión: ${e.message || "desconocido"}`);
         setDialogSeverity("error");
         setOpenDialog(true);
       }
+
       setIsUpdating(false);
     }
 
-    if (isUpdating) fetchCreateMuseum();
-  }, [isUpdating, museo]);
+    if (isUpdating) fetchCreateRoom();
+  }, [isUpdating, sala]);
 
   function handleChange(e) {
-    setMuseo({ ...museo, [e.target.name]: e.target.value });
+    setSala({ ...sala, [e.target.name]: e.target.value });
   }
 
   function handleClick() {
@@ -96,34 +117,40 @@ function AltaMuseo() {
 
     let validacion = {
       name: true,
-      city: true,
-      annual_budget: true,
-      is_public: true,
+      capacity: true,
+      area: true,
+      is_climatized: true,
       opening_date: true,
+      museum_id: true,
     };
 
-    if (!museo.name || museo.name.length < 3 || museo.name.length > 100) {
+    if (!sala.name || sala.name.length < 3 || sala.name.length > 100) {
       validacion.name = false;
       valido = false;
     }
 
-    if (!museo.city || museo.city.length < 3 || museo.city.length > 100) {
-      validacion.city = false;
+    if (sala.capacity === "" || isNaN(sala.capacity) || Number(sala.capacity) <= 0) {
+      validacion.capacity = false;
       valido = false;
     }
 
-    if (museo.annual_budget === "" || isNaN(museo.annual_budget) || Number(museo.annual_budget) < 0) {
-      validacion.annual_budget = false;
+    if (sala.area === "" || isNaN(sala.area) || Number(sala.area) <= 0) {
+      validacion.area = false;
       valido = false;
     }
 
-    if (museo.is_public !== true && museo.is_public !== false) {
-      validacion.is_public = false;
+    if (sala.is_climatized !== true && sala.is_climatized !== false) {
+      validacion.is_climatized = false;
       valido = false;
     }
 
-    if (!museo.opening_date) {
+    if (!sala.opening_date) {
       validacion.opening_date = false;
+      valido = false;
+    }
+
+    if (sala.museum_id === "" || isNaN(sala.museum_id) || Number(sala.museum_id) <= 0) {
+      validacion.museum_id = false;
       valido = false;
     }
 
@@ -133,35 +160,21 @@ function AltaMuseo() {
 
   return (
     <>
-      <Grid
-        container
-        spacing={2}
-        sx={{
-          justifyContent: "center",
-          alignItems: "center",
-        }}
-      >
+      <Grid container spacing={2} sx={{ justifyContent: "center", alignItems: "center" }}>
         <Grid item size={{ xs: 12, sm: 9, md: 7 }}>
           <Paper elevation={6} sx={{ mt: 3, p: 3, maxWidth: 900, mx: "auto" }}>
             <Typography variant="h4" align="center" sx={{ mb: 3 }}>
-              Alta de museo
+              Alta de sala
             </Typography>
 
-            <Grid
-              container
-              spacing={2}
-              sx={{
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
+            <Grid container spacing={2} sx={{ justifyContent: "center" }}>
               <Grid item size={{ xs: 10 }}>
                 <TextField
                   required
                   fullWidth
                   label="Nombre"
                   name="name"
-                  value={museo.name}
+                  value={sala.name}
                   onChange={handleChange}
                   error={!isCamposValidos.name}
                   helperText={!isCamposValidos.name && "Compruebe el formato del nombre."}
@@ -172,12 +185,13 @@ function AltaMuseo() {
                 <TextField
                   required
                   fullWidth
-                  label="Ciudad"
-                  name="city"
-                  value={museo.city}
+                  label="Capacidad"
+                  name="capacity"
+                  type="number"
+                  value={sala.capacity}
                   onChange={handleChange}
-                  error={!isCamposValidos.city}
-                  helperText={!isCamposValidos.city && "Compruebe el formato de la ciudad."}
+                  error={!isCamposValidos.capacity}
+                  helperText={!isCamposValidos.capacity && "Debe ser un número positivo."}
                 />
               </Grid>
 
@@ -185,13 +199,13 @@ function AltaMuseo() {
                 <TextField
                   required
                   fullWidth
-                  label="Presupuesto anual (€)"
-                  name="annual_budget"
+                  label="Área (m²)"
+                  name="area"
                   type="number"
-                  value={museo.annual_budget}
+                  value={sala.area}
                   onChange={handleChange}
-                  error={!isCamposValidos.annual_budget}
-                  helperText={!isCamposValidos.annual_budget && "Debe ser un número positivo."}
+                  error={!isCamposValidos.area}
+                  helperText={!isCamposValidos.area && "Debe ser un número positivo."}
                 />
               </Grid>
 
@@ -200,15 +214,10 @@ function AltaMuseo() {
                   required
                   select
                   fullWidth
-                  label="Museo público"
-                  value={museo.is_public}
-                  onChange={(e) =>
-                    setMuseo({
-                      ...museo,
-                      is_public: e.target.value === "true",
-                    })
-                  }
-                  error={!isCamposValidos.is_public}
+                  label="Climatizada"
+                  value={sala.is_climatized}
+                  onChange={(e) => setSala({ ...sala, is_climatized: e.target.value === "true" })}
+                  error={!isCamposValidos.is_climatized}
                 >
                   <MenuItem value="">
                     <em>Seleccione una opción</em>
@@ -217,17 +226,13 @@ function AltaMuseo() {
                   <MenuItem value="false">No</MenuItem>
                 </TextField>
               </Grid>
+
               <Grid item size={{ xs: 10 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                   <DatePicker
                     label="Fecha de apertura"
-                    value={museo.opening_date ? dayjs(museo.opening_date) : null}
-                    onChange={(newValue) =>
-                      setMuseo({
-                        ...museo,
-                        opening_date: newValue.format("YYYY-MM-DD"),
-                      })
-                    }
+                    value={sala.opening_date ? dayjs(sala.opening_date) : null}
+                    onChange={(newValue) => setSala({ ...sala, opening_date: newValue.format("YYYY-MM-DD") })}
                     slotProps={{
                       textField: {
                         required: true,
@@ -239,8 +244,33 @@ function AltaMuseo() {
                 </LocalizationProvider>
               </Grid>
 
+              {/* DESPLEGABLE DE MUSEOS */}
+              <Grid item size={{ xs: 10 }}>
+                <TextField
+                  required
+                  select
+                  fullWidth
+                  label="Museo"
+                  name="museum_id"
+                  value={sala.museum_id}
+                  onChange={handleChange}
+                  error={!isCamposValidos.museum_id}
+                  helperText={!isCamposValidos.museum_id && "Debe seleccionar un museo válido"}
+                >
+                  <MenuItem value="">
+                    <em>Seleccione un museo</em>
+                  </MenuItem>
+
+                  {museos.map((museo) => (
+                    <MenuItem key={museo.museum_id} value={museo.museum_id}>
+                      {museo.name}
+                    </MenuItem>
+                  ))}
+                </TextField>
+              </Grid>
+
               <Grid item size={{ xs: 10 }} sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Button variant="contained" sx={{ mt: 3 }} loading={isUpdating} loadingPosition="end" onClick={handleClick}>
+                <Button variant="contained" sx={{ mt: 3 }} onClick={handleClick}>
                   Aceptar
                 </Button>
               </Grid>
@@ -249,12 +279,10 @@ function AltaMuseo() {
         </Grid>
       </Grid>
 
-      <Dialog open={openDialog} onClose={handleDialogClose} disableEscapeKeyDown aria-labelledby="result-dialog-title">
-        <DialogTitle id="result-dialog-title">{dialogSeverity === "success" ? "Operación correcta" : "Error"}</DialogTitle>
-        <DialogContent dividers>
-          <Alert severity={dialogSeverity} variant="filled">
-            {dialogMessage}
-          </Alert>
+      <Dialog open={openDialog} onClose={handleDialogClose}>
+        <DialogTitle>{dialogSeverity === "success" ? "Operación correcta" : "Error"}</DialogTitle>
+        <DialogContent>
+          <Alert severity={dialogSeverity}>{dialogMessage}</Alert>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>OK</Button>
@@ -264,4 +292,4 @@ function AltaMuseo() {
   );
 }
 
-export default AltaMuseo;
+export default AltaSala;

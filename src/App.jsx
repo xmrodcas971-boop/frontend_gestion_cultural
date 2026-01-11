@@ -2,10 +2,13 @@ import { RouterProvider } from "react-router/dom";
 import { createBrowserRouter } from "react-router";
 
 import Inicio from "./components/Inicio";
+//museos
 import ListadoMuseos from "./components/ListadoMuseos";
 import AltaMuseo from "./components/AltaMuseo";
-//poner alta salas
+
+//salas
 import ListadoSalas from "./components/ListadoSalas";
+import AltaSala from "./components/AltaSala";
 
 
 import Home from "./pages/Home";
@@ -31,7 +34,7 @@ const router = createBrowserRouter([
       },
       {
         path: "/rooms/new",
-        element: <h1>Alta de salas</h1>,
+        element: <AltaSala />,
       },
     ],
   },

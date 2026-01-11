@@ -9,7 +9,7 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 
-//mostrar el id???
+import BotonBorrar from "./BotonBorrar";
 
 function ListadoSalas() {
   const [datos, setDatos] = useState([]);
@@ -18,18 +18,36 @@ function ListadoSalas() {
   useEffect(() => {
     async function fetchSalas() {
       try {
-        let response = await fetch("http://localhost:3000/api/rooms/");
+        let responseSalas = await fetch("http://localhost:3000/api/rooms/");
 
-        if (response.ok) {
-          let datosSalas = await response.json();
+        if (responseSalas.ok) {
+          let datosSalas = await responseSalas.json();
 
-          // Actualizamos los datos de salas
-          setDatos(datosSalas.datos);
+          let responseMuseos = await fetch("http://localhost:3000/api/museums/");
 
-          // Y no tenemos errores
-          setError(null);
+          if (responseMuseos.ok) {
+            let datosMuseos = await responseMuseos.json();
+
+            /* Crear mapa museum_id -> nombre */
+            const mapaMuseos = {};
+            datosMuseos.datos.forEach((museo) => {
+              mapaMuseos[museo.museum_id] = museo.name;
+            });
+
+            /* Salas con nombre del museo */
+            const salasConMuseo = datosSalas.datos.map((sala) => ({
+              ...sala,
+              museum_name: mapaMuseos[sala.museum_id] || "Desconocido",
+            }));
+
+            setDatos(salasConMuseo);
+            setError(null);
+          } else {
+            setError("Respuesta errónea del servidor (museos).");
+            setDatos([]);
+          }
         } else {
-          setError("Respuesta errónea del servidor.");
+          setError("Respuesta errónea del servidor (salas).");
           setDatos([]);
         }
       } catch (e) {
@@ -64,6 +82,8 @@ function ListadoSalas() {
               <TableCell align="right">Área (m²)</TableCell>
               <TableCell align="center">Climatizada</TableCell>
               <TableCell align="center">Fecha apertura</TableCell>
+              <TableCell align="center">Museo</TableCell>
+              <TableCell align="center">Borrar</TableCell>
             </TableRow>
           </TableHead>
 
@@ -74,9 +94,20 @@ function ListadoSalas() {
                 <TableCell align="right">{row.capacity}</TableCell>
                 <TableCell align="right">{row.area}</TableCell>
                 <TableCell align="center">
-                  <Chip label={row.is_climatized ? "Sí" : "No"} color={row.is_climatized ? "success" : "default"} size="small" />
+                  <Chip
+                    label={row.is_climatized ? "Sí" : "No"}
+                    color={row.is_climatized ? "success" : "default"}
+                    size="small"
+                  />
                 </TableCell>
                 <TableCell align="center">{row.opening_date}</TableCell>
+
+                {/* Nombre del museo */}
+                <TableCell align="center">{row.museum_name}</TableCell>
+
+                <TableCell align="center">
+                  <BotonBorrar ruta="/rooms/" id={row.room_id} />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>

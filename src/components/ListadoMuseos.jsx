@@ -9,7 +9,8 @@ import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 
-//mostrar el id???
+import BotonBorrar from "./BotonBorrar";
+
 
 function ListadoMuseos() {
   const [datos, setDatos] = useState([]);
@@ -64,6 +65,7 @@ function ListadoMuseos() {
               <TableCell align="right">Presupuesto (€)</TableCell>
               <TableCell align="center">Público</TableCell>
               <TableCell align="center">Fecha apertura</TableCell>
+              <TableCell align="center">Borrar</TableCell>
             </TableRow>
           </TableHead>
 
@@ -77,6 +79,13 @@ function ListadoMuseos() {
                   <Chip label={row.is_public ? "Sí" : "No"} color={row.is_public ? "success" : "default"} size="small" />
                 </TableCell>
                 <TableCell align="center">{row.opening_date}</TableCell>
+                {/* BOTÓN BORRAR */}
+                <TableCell align="center">
+                  <BotonBorrar
+                    ruta="/museums/"
+                    id={row.museum_id}               
+                  />
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
