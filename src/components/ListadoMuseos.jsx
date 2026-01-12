@@ -52,7 +52,7 @@ function ListadoMuseos() {
 
   return (
     <>
-      <Typography variant="h4" align="center" sx={{ my: 3 }}>
+      <Typography variant="h4" align="center" color="primary" sx={{ my: 3 }}>
         Listado de museos
       </Typography>
 

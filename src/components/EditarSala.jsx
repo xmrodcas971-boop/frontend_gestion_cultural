@@ -185,7 +185,7 @@ function EditarSala() {
       <Grid container spacing={2} sx={{ justifyContent: "center", alignItems: "center" }}>
         <Grid item size={{ xs: 12, sm: 9, md: 7 }}>
           <Paper elevation={6} sx={{ mt: 3, p: 3, maxWidth: 900, mx: "auto" }}>
-            <Typography variant="h4" align="center" sx={{ mb: 3 }}>
+            <Typography variant="h4" align="center" color="primary" sx={{ mb: 3 }}>
               Editar de sala
             </Typography>
 

@@ -6,10 +6,13 @@ import Inicio from "./components/Inicio";
 import ListadoMuseos from "./components/ListadoMuseos";
 import AltaMuseo from "./components/AltaMuseo";
 import EditarMuseo from "./components/EditarMuseo";
+import BusquedaMuseos from "./components/BusquedaMuseos";
+import BusquedaMuseosFecha from "./components/BusquedaMuseosFecha";
 //salas
 import ListadoSalas from "./components/ListadoSalas";
 import AltaSala from "./components/AltaSala";
 import EditarSala from "./components/EditarSala";
+import BusquedaSalas from "./components/BusquedaSalas";
 
 import Home from "./pages/Home";
 
@@ -32,6 +35,14 @@ const router = createBrowserRouter([
         element: <EditarMuseo />,
       },
       {
+        path: "/museums/buscar",
+        element: <BusquedaMuseos />,
+      },
+      {
+        path: "/museums/buscar-fecha",
+        element: <BusquedaMuseosFecha />,
+      },
+      {
         path: "/rooms/new",
         element: <AltaSala />,
       },
@@ -42,6 +53,10 @@ const router = createBrowserRouter([
       {
         path: "/rooms/editar/:id",
         element: <EditarSala />,
+      },
+      {
+        path: "/rooms/buscar",
+        element: <BusquedaSalas />,
       },
     ],
   },

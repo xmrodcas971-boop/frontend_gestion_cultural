@@ -2,6 +2,7 @@ import api from "../api";
 import { useState } from "react";
 import Button from "@mui/material/Button";
 import DeleteIcon from "@mui/icons-material/Delete";
+// Aqui uso axios para hacer la peticion DELETE
 
 function BotonBorrar({ ruta, id }) {
     const [error, setError] = useState(null);

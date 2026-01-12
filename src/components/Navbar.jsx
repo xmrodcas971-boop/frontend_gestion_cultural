@@ -15,7 +15,7 @@ import Divider from "@mui/material/Divider";
 import ListSubheader from "@mui/material/ListSubheader";
 
 //icon
-import MuseumIcon from '@mui/icons-material/Museum';
+import MuseumIcon from "@mui/icons-material/Museum";
 
 function Navbar() {
   const [anclaMenuMuseos, setAnclaMenuMuseos] = React.useState(null);
@@ -77,32 +77,39 @@ function Navbar() {
               <ListSubheader>Menú Museos</ListSubheader>
               <MenuItem onClick={handleCloseNavMenu}>
                 <Link to="/museums/new" style={linkStyle}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    Alta de museos
-                  </Typography>
+                  <Typography sx={{ textAlign: "center" }}>Alta de museos</Typography>
                 </Link>
               </MenuItem>
               <MenuItem onClick={handleCloseNavMenu}>
                 <Link to="/museums" style={linkStyle}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    Listado de museos
-                  </Typography>
+                  <Typography sx={{ textAlign: "center" }}>Listado de museos</Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Link to="/museums/buscar" style={linkStyle}>
+                  <Typography sx={{ textAlign: "center" }}>Busqueda de museos</Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Link to="/museums/buscar-fecha" style={linkStyle}>
+                  <Typography sx={{ textAlign: "center" }}>Busqueda de museos por fecha</Typography>
                 </Link>
               </MenuItem>
               <Divider />
               <ListSubheader>Menú Salas</ListSubheader>
               <MenuItem onClick={handleCloseNavMenu}>
                 <Link to="/rooms/new" style={linkStyle}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    Alta de salas
-                  </Typography>
+                  <Typography sx={{ textAlign: "center" }}>Alta de salas</Typography>
                 </Link>
               </MenuItem>
               <MenuItem onClick={handleCloseNavMenu}>
                 <Link to="/rooms" style={linkStyle}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    Listado de salas
-                  </Typography>
+                  <Typography sx={{ textAlign: "center" }}>Listado de salas</Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Link to="/rooms/buscar" style={linkStyle}>
+                  <Typography sx={{ textAlign: "center" }}>Busqueda de salas</Typography>
                 </Link>
               </MenuItem>
             </Menu>
@@ -130,10 +137,7 @@ function Navbar() {
           {/* Menú para resolución md */}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" } }}>
             {/* Menú para museos en md */}
-            <Button
-              onClick={handleClickMenuMuseos}
-              sx={{ my: 2, color: "white", display: "block" }}
-            >
+            <Button onClick={handleClickMenuMuseos} sx={{ my: 2, color: "white", display: "block" }}>
               Museos
             </Button>
             <Menu
@@ -154,24 +158,27 @@ function Navbar() {
             >
               <MenuItem onClick={handleCloseNavMenu}>
                 <Link to="/museums/new" style={linkStyle}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    Alta de museos
-                  </Typography>
+                  <Typography sx={{ textAlign: "center" }}>Alta de museos</Typography>
                 </Link>
               </MenuItem>
               <MenuItem onClick={handleCloseNavMenu}>
                 <Link to="/museums" style={linkStyle}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    Listado de museos
-                  </Typography>
+                  <Typography sx={{ textAlign: "center" }}>Listado de museos</Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Link to="/museums/buscar" style={linkStyle}>
+                  <Typography sx={{ textAlign: "center" }}>Busqueda de museos</Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Link to="/museums/buscar-fecha" style={linkStyle}>
+                  <Typography sx={{ textAlign: "center" }}>Busqueda de museos por fecha</Typography>
                 </Link>
               </MenuItem>
             </Menu>
             {/* Menú para salas en md */}
-            <Button
-              onClick={handleClickMenuSalas}
-              sx={{ my: 2, color: "white", display: "block" }}
-            >
+            <Button onClick={handleClickMenuSalas} sx={{ my: 2, color: "white", display: "block" }}>
               Salas
             </Button>
             <Menu
@@ -192,16 +199,17 @@ function Navbar() {
             >
               <MenuItem onClick={handleCloseNavMenu}>
                 <Link to="/rooms/new" style={linkStyle}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    Alta de salas
-                  </Typography>
+                  <Typography sx={{ textAlign: "center" }}>Alta de salas</Typography>
                 </Link>
               </MenuItem>
               <MenuItem onClick={handleCloseNavMenu}>
                 <Link to="/rooms" style={linkStyle}>
-                  <Typography sx={{ textAlign: "center" }}>
-                    Listado de salas
-                  </Typography>
+                  <Typography sx={{ textAlign: "center" }}>Listado de salas</Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Link to="/rooms/buscar" style={linkStyle}>
+                  <Typography sx={{ textAlign: "center" }}>Busqueda de salas</Typography>
                 </Link>
               </MenuItem>
             </Menu>
