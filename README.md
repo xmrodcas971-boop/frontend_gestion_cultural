@@ -1,2 +1,2 @@
 # frontend_gestion_cultural
-Frontend del proyecto de DIW con react
+El frontend está en la rama master
