@@ -10,7 +10,7 @@ import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
 
 import BotonBorrar from "./BotonBorrar";
-
+import BotonEditar from "./BotonEditar";
 
 function ListadoMuseos() {
   const [datos, setDatos] = useState([]);
@@ -66,6 +66,7 @@ function ListadoMuseos() {
               <TableCell align="center">Público</TableCell>
               <TableCell align="center">Fecha apertura</TableCell>
               <TableCell align="center">Borrar</TableCell>
+              <TableCell align="center">Editar</TableCell>
             </TableRow>
           </TableHead>
 
@@ -84,6 +85,13 @@ function ListadoMuseos() {
                   <BotonBorrar
                     ruta="/museums/"
                     id={row.museum_id}               
+                  />
+                </TableCell>
+                {/* BOTÓN EDITAR */}
+                <TableCell align="center">
+                  <BotonEditar
+                    ruta="/museums/editar/"
+                    id={row.museum_id}
                   />
                 </TableCell>
               </TableRow>
