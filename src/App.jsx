@@ -2,6 +2,7 @@ import { RouterProvider } from "react-router/dom";
 import { createBrowserRouter } from "react-router";
 
 import Inicio from "./components/Inicio";
+import LandingPage from "./components/LandingPage";
 //museos
 import ListadoMuseos from "./components/ListadoMuseos";
 import AltaMuseo from "./components/AltaMuseo";
@@ -21,7 +22,7 @@ const router = createBrowserRouter([
     path: "/",
     Component: Home,
     children: [
-      { index: true, Component: Inicio },
+      { index: true, Component: LandingPage },
       {
         path: "/museums/new",
         element: <AltaMuseo />,

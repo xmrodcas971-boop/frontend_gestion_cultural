@@ -155,7 +155,7 @@ function AltaMuseo() {
                 alignItems: "center",
               }}
             >
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -168,7 +168,7 @@ function AltaMuseo() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -181,7 +181,7 @@ function AltaMuseo() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -195,7 +195,7 @@ function AltaMuseo() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   select
@@ -217,7 +217,7 @@ function AltaMuseo() {
                   <MenuItem value="false">No</MenuItem>
                 </TextField>
               </Grid>
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                   <DatePicker
                     label="Fecha de apertura"
