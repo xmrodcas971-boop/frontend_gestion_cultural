@@ -176,7 +176,7 @@ function EditarMuseo() {
                 alignItems: "center",
               }}
             >
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -189,7 +189,7 @@ function EditarMuseo() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -202,7 +202,7 @@ function EditarMuseo() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -216,7 +216,7 @@ function EditarMuseo() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   select
@@ -239,7 +239,7 @@ function EditarMuseo() {
                 </TextField>
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10 , md: 6 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                   <DatePicker
                     label="Fecha de apertura"

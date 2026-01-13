@@ -98,12 +98,11 @@ function EditarSala() {
           setDialogMessage(respuesta.mensaje);
           setDialogSeverity("success");
           setOpenDialog(true);
-        } 
-        else if (response.status === 404) {
+        } else if (response.status === 404) {
           setDialogMessage("Sala no encontrada");
           setDialogSeverity("error");
           setOpenDialog(true);
-        }else {
+        } else {
           setDialogMessage("Error del servidor");
           setDialogSeverity("error");
           setOpenDialog(true);
@@ -190,7 +189,7 @@ function EditarSala() {
             </Typography>
 
             <Grid container spacing={2} sx={{ justifyContent: "center" }}>
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -203,7 +202,7 @@ function EditarSala() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -217,7 +216,7 @@ function EditarSala() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -231,7 +230,7 @@ function EditarSala() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   select
@@ -249,7 +248,7 @@ function EditarSala() {
                 </TextField>
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                   <DatePicker
                     label="Fecha de apertura"
@@ -267,7 +266,7 @@ function EditarSala() {
               </Grid>
 
               {/* DESPLEGABLE DE MUSEOS */}
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10, md: 6 }}>
                 <TextField
                   required
                   select

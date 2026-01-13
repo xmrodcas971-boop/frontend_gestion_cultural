@@ -168,7 +168,7 @@ function AltaSala() {
             </Typography>
 
             <Grid container spacing={2} sx={{ justifyContent: "center" }}>
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10 , md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -181,7 +181,7 @@ function AltaSala() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10 , md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -195,7 +195,7 @@ function AltaSala() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10 , md: 6 }}>
                 <TextField
                   required
                   fullWidth
@@ -209,7 +209,7 @@ function AltaSala() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10 , md: 6 }}>
                 <TextField
                   required
                   select
@@ -227,7 +227,7 @@ function AltaSala() {
                 </TextField>
               </Grid>
 
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10 , md: 6 }}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                   <DatePicker
                     label="Fecha de apertura"
@@ -245,7 +245,7 @@ function AltaSala() {
               </Grid>
 
               {/* DESPLEGABLE DE MUSEOS */}
-              <Grid item size={{ xs: 10 }}>
+              <Grid item size={{ xs: 10 , md: 6 }}>
                 <TextField
                   required
                   select

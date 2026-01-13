@@ -1,7 +1,6 @@
 import { RouterProvider } from "react-router/dom";
 import { createBrowserRouter } from "react-router";
 
-import Inicio from "./components/Inicio";
 import LandingPage from "./components/LandingPage";
 //museos
 import ListadoMuseos from "./components/ListadoMuseos";
