@@ -6,40 +6,12 @@ Frontend del proyecto de gestión cultural.
 
 [https://github.com/xmrodcas971-boop/frontend_gestion_cultural/tree/master](https://github.com/xmrodcas971-boop/frontend_gestion_cultural/tree/master)
 
-## Datos para la conexión a la base de datos
 
-- *Nombre de la base de datos:* gestion_cultural
-- *Usuario:* root
-- *Contraseña:* test
-- *Host:* localhost
-- *Puerto:* 3306
+### Enlace a la aplicación desplegada en AWS
 
-## Ejecución del Proyecto
+1.  Enlace a frontend (S3):
+    http://frontend-gestion-cultural-miguel.s3-website-us-east-1.amazonaws.com/
+    
+2.  Enlace a backend (EC2):
+    http://34.205.99.251:3000/api/museums
 
-### Backend
-
-1.  Navegar al directorio del backend:
-    bash
-    cd ../backend_gestion_cultural
-    
-2.  Instalar dependencias:
-    bash
-    npm install
-    
-3.  Iniciar el servidor de desarrollo:
-    bash
-    npm run dev
-    
-### Frontend (primero iniciar el backend)
-
-1.  Navegar al directorio del frontend:
-    bash
-    cd ../frontend_gestion_cultural
-    
-2.  Instalar dependencias:
-    bash
-    npm install
-    
-3.  Iniciar el servidor de desarrollo:
-    bash
-    npm run dev
