@@ -1,3 +1,8 @@
+/**
+ * Componente de formulario para dar de alta una nueva sala.
+ * Permite ingresar los datos de una sala y enviarlos al backend para su registro.
+ * @module AltaSala
+ */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Typography from "@mui/material/Typography";
@@ -21,9 +26,20 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
+/**
+ * Componente funcional que renderiza el formulario de alta de salas.
+ * Utiliza estados locales para gestionar los campos del formulario y el envío de datos.
+ * @returns {JSX.Element} Renderizado del formulario de alta de sala.
+ */
 function AltaSala() {
+  /**
+   * Hook de navegación para redireccionar tras el alta.
+   */
   const navigate = useNavigate();
 
+  /**
+   * Estado para los datos de la sala a registrar.
+   */
   const [sala, setSala] = useState({
     name: "",
     capacity: "",
@@ -33,8 +49,14 @@ function AltaSala() {
     museum_id: "",
   });
 
+  /**
+   * Estado para la lista de museos disponibles (para el desplegable).
+   */
   const [museos, setMuseos] = useState([]);
 
+  /**
+   * Estado para la validación de los campos del formulario.
+   */
   const [isCamposValidos, setIsCamposValidos] = useState({
     name: true,
     capacity: true,
@@ -44,12 +66,27 @@ function AltaSala() {
     museum_id: true,
   });
 
+  /**
+   * Estado para indicar si se está enviando el formulario.
+   */
   const [isUpdating, setIsUpdating] = useState(false);
+  /**
+   * Estado para controlar la apertura del diálogo de resultado.
+   */
   const [openDialog, setOpenDialog] = useState(false);
+  /**
+   * Mensaje mostrado en el diálogo de resultado.
+   */
   const [dialogMessage, setDialogMessage] = useState("");
+  /**
+   * Severidad del mensaje en el diálogo (success/error).
+   */
   const [dialogSeverity, setDialogSeverity] = useState("success");
 
   /* Fetch de museos para el desplegable */
+  /**
+   * Efecto que carga la lista de museos para el desplegable al montar el componente.
+   */
   useEffect(() => {
     async function fetchMuseos() {
       try {
@@ -67,6 +104,9 @@ function AltaSala() {
   }, []);
 
   /* Post para crear la sala */
+  /**
+   * Efecto que envía los datos al backend cuando isUpdating es true.
+   */
   useEffect(() => {
     async function fetchCreateRoom() {
       try {
@@ -98,20 +138,35 @@ function AltaSala() {
     if (isUpdating) fetchCreateRoom();
   }, [isUpdating, sala]);
 
+  /**
+   * Maneja el cambio de los campos del formulario.
+   * @param {React.ChangeEvent} e
+   */
   function handleChange(e) {
     setSala({ ...sala, [e.target.name]: e.target.value });
   }
 
+  /**
+   * Maneja el click en el botón de aceptar.
+   * Valida los datos y activa el envío si es válido.
+   */
   function handleClick() {
     if (isUpdating) return;
     if (validarDatos()) setIsUpdating(true);
   }
 
+  /**
+   * Cierra el diálogo de resultado y redirige si la operación fue exitosa.
+   */
   function handleDialogClose() {
     setOpenDialog(false);
     if (dialogSeverity === "success") navigate("/");
   }
 
+  /**
+   * Valida los datos del formulario y actualiza el estado de validación.
+   * @returns {boolean} true si los datos son válidos, false en caso contrario.
+   */
   function validarDatos() {
     let valido = true;
 
@@ -158,6 +213,7 @@ function AltaSala() {
     return valido;
   }
 
+  // Renderiza el formulario de alta de sala y el diálogo de resultado
   return (
     <>
       <Grid container spacing={2} sx={{ justifyContent: "center", alignItems: "center" }}>

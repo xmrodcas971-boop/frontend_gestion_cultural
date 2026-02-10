@@ -1,3 +1,8 @@
+/**
+ * Componente de página de bienvenida con slider de información destacada.
+ * Permite navegar entre diferentes slides con información cultural.
+ * @module LandingPage
+ */
 import { useState } from "react";
 import { Box, Button, Typography, Container, Grid } from "@mui/material";
 import { useNavigate } from "react-router-dom";
@@ -22,15 +27,31 @@ const slides = [
   },
 ];
 
+/**
+ * Componente funcional que renderiza la página de bienvenida con slider.
+ * Utiliza estados para gestionar el slide actual y la navegación entre slides.
+ * @returns {JSX.Element} Renderizado del slider y controles de navegación.
+ */
 function LandingPage() {
   const navigate = useNavigate();
+  /**
+   * Índice del slide actualmente visible.
+   * @type {number}
+   */
   const [index, setIndex] = useState(0);
 
+  /**
+   * Avanza al siguiente slide del slider.
+   */
   const nextSlide = () => setIndex((prev) => (prev + 1) % slides.length);
+  /**
+   * Retrocede al slide anterior del slider.
+   */
   const prevSlide = () => setIndex((prev) => (prev - 1 + slides.length) % slides.length);
 
   const slide = slides[index];
 
+  // Renderiza el slider de bienvenida y los controles de navegación
   return (
     <Box sx={{ flexGrow: 1 }}>
       {/* SLIDER */}

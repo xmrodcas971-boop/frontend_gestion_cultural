@@ -1,3 +1,8 @@
+/**
+ * Componente de formulario para dar de alta un nuevo museo.
+ * Permite ingresar los datos de un museo y enviarlos al backend para su registro.
+ * @module AltaMuseo
+ */
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Typography from "@mui/material/Typography";
@@ -21,9 +26,20 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
+/**
+ * Componente funcional que renderiza el formulario de alta de museos.
+ * Utiliza estados locales para gestionar los campos del formulario y el envío de datos.
+ * @returns {JSX.Element} Renderizado del formulario de alta de museo.
+ */
 function AltaMuseo() {
+  /**
+   * Hook de navegación para redireccionar tras el alta.
+   */
   const navigate = useNavigate();
 
+  /**
+   * Estado para los datos del museo a registrar.
+   */
   const [museo, setMuseo] = useState({
     name: "",
     city: "",
@@ -32,6 +48,9 @@ function AltaMuseo() {
     opening_date: "",
   });
 
+  /**
+   * Estado para la validación de los campos del formulario.
+   */
   const [isCamposValidos, setIsCamposValidos] = useState({
     name: true,
     city: true,
@@ -40,11 +59,26 @@ function AltaMuseo() {
     opening_date: true,
   });
 
+  /**
+   * Estado para indicar si se está enviando el formulario.
+   */
   const [isUpdating, setIsUpdating] = useState(false);
+  /**
+   * Estado para controlar la apertura del diálogo de resultado.
+   */
   const [openDialog, setOpenDialog] = useState(false);
+  /**
+   * Mensaje mostrado en el diálogo de resultado.
+   */
   const [dialogMessage, setDialogMessage] = useState("");
+  /**
+   * Severidad del mensaje en el diálogo (success/error).
+   */
   const [dialogSeverity, setDialogSeverity] = useState("success");
 
+  /**
+   * Efecto que envía los datos al backend cuando isUpdating es true.
+   */
   useEffect(() => {
     async function fetchCreateMuseum() {
       try {
@@ -77,20 +111,35 @@ function AltaMuseo() {
     if (isUpdating) fetchCreateMuseum();
   }, [isUpdating, museo]);
 
+  /**
+   * Maneja el cambio de los campos del formulario.
+   * @param {React.ChangeEvent} e
+   */
   function handleChange(e) {
     setMuseo({ ...museo, [e.target.name]: e.target.value });
   }
 
+  /**
+   * Maneja el click en el botón de aceptar.
+   * Valida los datos y activa el envío si es válido.
+   */
   function handleClick() {
     if (isUpdating) return;
     if (validarDatos()) setIsUpdating(true);
   }
 
+  /**
+   * Cierra el diálogo de resultado y redirige si la operación fue exitosa.
+   */
   function handleDialogClose() {
     setOpenDialog(false);
     if (dialogSeverity === "success") navigate("/");
   }
 
+  /**
+   * Valida los datos del formulario y actualiza el estado de validación.
+   * @returns {boolean} true si los datos son válidos, false en caso contrario.
+   */
   function validarDatos() {
     let valido = true;
 
@@ -131,6 +180,7 @@ function AltaMuseo() {
     return valido;
   }
 
+  // Renderiza el formulario de alta de museo y el diálogo de resultado
   return (
     <>
       <Grid

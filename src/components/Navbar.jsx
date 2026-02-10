@@ -1,3 +1,8 @@
+/**
+ * Componente de barra de navegación principal de la aplicación.
+ * Permite la navegación entre las diferentes páginas del sistema de gestión cultural.
+ * @module Navbar
+ */
 import * as React from "react";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
@@ -17,31 +22,65 @@ import ListSubheader from "@mui/material/ListSubheader";
 //icon
 import MuseumIcon from "@mui/icons-material/Museum";
 
+/**
+ * Componente funcional que renderiza la barra de navegación superior.
+ * Utiliza Material UI y React Router para la navegación entre rutas y el diseño responsivo.
+ * @returns {JSX.Element} Renderizado de la barra de navegación.
+ */
 function Navbar() {
+  /**
+   * Estado para el ancla del menú de museos (versión md).
+   * @type {HTMLElement|null}
+   */
   const [anclaMenuMuseos, setAnclaMenuMuseos] = React.useState(null);
+  /**
+   * Estado para el ancla del menú de salas (versión md).
+   * @type {HTMLElement|null}
+   */
   const [anclaMenuSalas, setAnclaMenuSalas] = React.useState(null);
+  /**
+   * Estado para el ancla del menú hamburguesa (versión xs).
+   * @type {HTMLElement|null}
+   */
   const [anclaMenuXS, setAnclaMenuXS] = React.useState(null);
 
+  /**
+   * Abre el menú de museos (md) anclándolo al botón correspondiente.
+   * @param {React.MouseEvent} event
+   */
   const handleClickMenuMuseos = (event) => {
     setAnclaMenuMuseos(event.currentTarget);
   };
 
+  /**
+   * Abre el menú de salas (md) anclándolo al botón correspondiente.
+   * @param {React.MouseEvent} event
+   */
   const handleClickMenuSalas = (event) => {
     setAnclaMenuSalas(event.currentTarget);
   };
 
+  /**
+   * Abre el menú hamburguesa (xs) anclándolo al botón correspondiente.
+   * @param {React.MouseEvent} event
+   */
   const handleClickMenuXS = (event) => {
     setAnclaMenuXS(event.currentTarget);
   };
 
+  /**
+   * Cierra todos los menús de navegación.
+   */
   const handleCloseNavMenu = () => {
     setAnclaMenuMuseos(null);
     setAnclaMenuSalas(null);
     setAnclaMenuXS(null);
   };
 
+  // Estilo para los enlaces de navegación
   const linkStyle = { color: "black", textDecoration: "none" };
 
+  // Renderiza la barra de navegación con menús responsivos y enlaces a las distintas páginas
   return (
     <AppBar position="static">
       <Container maxWidth="xl">
@@ -93,6 +132,11 @@ function Navbar() {
               <MenuItem onClick={handleCloseNavMenu}>
                 <Link to="/museums/buscar-fecha" style={linkStyle}>
                   <Typography sx={{ textAlign: "center" }}>Busqueda de museos por fecha</Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Link to="/museums/graph" style={linkStyle}>
+                  <Typography sx={{ textAlign: "center" }}>Gráfica de museos</Typography>
                 </Link>
               </MenuItem>
               <Divider />
@@ -174,6 +218,11 @@ function Navbar() {
               <MenuItem onClick={handleCloseNavMenu}>
                 <Link to="/museums/buscar-fecha" style={linkStyle}>
                   <Typography sx={{ textAlign: "center" }}>Busqueda de museos por fecha</Typography>
+                </Link>
+              </MenuItem>
+              <MenuItem onClick={handleCloseNavMenu}>
+                <Link to="/museums/graph" style={linkStyle}>
+                  <Typography sx={{ textAlign: "center" }}>Gráfica de museos</Typography>
                 </Link>
               </MenuItem>
             </Menu>

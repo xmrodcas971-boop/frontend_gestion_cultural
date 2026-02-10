@@ -8,6 +8,7 @@ import AltaMuseo from "./components/AltaMuseo";
 import EditarMuseo from "./components/EditarMuseo";
 import BusquedaMuseos from "./components/BusquedaMuseos";
 import BusquedaMuseosFecha from "./components/BusquedaMuseosFecha";
+import GraficaMuseos from "./components/GraficaMuseos";
 //salas
 import ListadoSalas from "./components/ListadoSalas";
 import AltaSala from "./components/AltaSala";
@@ -41,6 +42,10 @@ const router = createBrowserRouter([
       {
         path: "/museums/buscar-fecha",
         element: <BusquedaMuseosFecha />,
+      },
+      {
+        path: "/museums/graph",
+        element: <GraficaMuseos />,
       },
       {
         path: "/rooms/new",

@@ -1,3 +1,8 @@
+/**
+ * Componente funcional para buscar salas por rango de área.
+ * Permite filtrar salas entre dos valores de área y muestra los resultados en una tabla.
+ * @module BusquedaSalas
+ */
 import { useState } from "react";
 import Typography from "@mui/material/Typography";
 import TextField from "@mui/material/TextField";
@@ -16,29 +21,64 @@ import Chip from "@mui/material/Chip";
 import BotonBorrar from "./BotonBorrar";
 import BotonEditar from "./BotonEditar";
 
+/**
+ * Componente principal para la búsqueda de salas por área.
+ * Utiliza estados para gestionar los valores del formulario, los resultados y los errores.
+ * @returns {JSX.Element} Renderizado del formulario y resultados de búsqueda.
+ */
 function BusquedaSalas() {
+  /**
+   * Área mínima introducida por el usuario.
+   * @type {string}
+   */
   const [min, setMin] = useState("");
+  /**
+   * Área máxima introducida por el usuario.
+   * @type {string}
+   */
   const [max, setMax] = useState("");
+  /**
+   * Resultados de salas obtenidos tras la búsqueda.
+   * @type {Array<Object>}
+   */
   const [datos, setDatos] = useState([]);
+  /**
+   * Mensaje de error en caso de fallo en la búsqueda.
+   * @type {string|null}
+   */
   const [error, setError] = useState(null);
+  /**
+   * Indica si se ha realizado una búsqueda.
+   * @type {boolean}
+   */
   const [buscado, setBuscado] = useState(false);
 
+  /**
+   * Realiza la petición al backend para buscar salas por área.
+   * Valida los campos antes de enviar la petición.
+   * @async
+   * @function
+   * @returns {Promise<void>}
+   */
   const handleBuscar = async () => {
     setBuscado(true);
     setError(null);
     setDatos([]);
 
+    // Validación: ambos campos deben estar completos
     if (!min || !max) {
       setError("Debe indicar el área mínima y máxima");
       return;
     }
 
+    // Validación: el área mínima no puede ser mayor que la máxima
     if (Number(min) > Number(max)) {
       setError("El área mínima no puede ser mayor que la máxima");
       return;
     }
 
     try {
+      // Petición al backend para obtener salas en el rango de área
       const responseSalas = await fetch(`http://localhost:3000/api/rooms/area?min=${min}&max=${max}`);
 
       if (!responseSalas.ok) {
@@ -48,8 +88,7 @@ function BusquedaSalas() {
       }
 
       const datosSalas = await responseSalas.json();
-
-      /* Buscar museos */
+      // Buscar museos para asociar nombre a cada sala
       const responseMuseos = await fetch("http://localhost:3000/api/museums/");
 
       if (!responseMuseos.ok) {

@@ -1,3 +1,8 @@
+/**
+ * Componente funcional que muestra una tabla con el listado de salas.
+ * Incluye el nombre del museo asociado y opciones para editar o eliminar cada sala.
+ * @module ListadoSalas
+ */
 import { useState, useEffect } from "react";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
@@ -12,11 +17,34 @@ import Chip from "@mui/material/Chip";
 import BotonBorrar from "./BotonBorrar";
 import BotonEditar from "./BotonEditar";
 
+/**
+ * Componente principal para mostrar el listado de salas.
+ * Utiliza estados para gestionar los datos, errores y renderizado de la tabla.
+ * @returns {JSX.Element} Renderizado de la tabla de salas y controles asociados.
+ */
 function ListadoSalas() {
+  /**
+   * Datos de las salas obtenidos desde la API, incluyendo el nombre del museo asociado.
+   * @type {Array<Object>}
+   */
   const [datos, setDatos] = useState([]);
+  /**
+   * Mensaje de error en caso de fallo al obtener los datos.
+   * @type {string|null}
+   */
   const [error, setError] = useState(null);
 
+  /**
+   * Hook de efecto para obtener los datos de las salas y museos al cargar el componente.
+   * Llama a la función asíncrona fetchSalas una sola vez al montar el componente.
+   */
   useEffect(() => {
+    /**
+     * Función asíncrona para obtener los datos de las salas y asociar el nombre del museo.
+     * @async
+     * @function
+     * @returns {Promise<void>}
+     */
     async function fetchSalas() {
       try {
         let responseSalas = await fetch("http://localhost:3000/api/rooms/");
@@ -60,6 +88,7 @@ function ListadoSalas() {
     fetchSalas();
   }, []);
 
+  // Renderizado de mensaje de error si ocurre algún problema al obtener los datos
   if (error != null) {
     return (
       <Typography variant="h5" align="center" sx={{ mt: 3 }}>
@@ -68,6 +97,7 @@ function ListadoSalas() {
     );
   }
 
+  // Renderizado principal de la tabla de salas y controles
   return (
     <>
       <Typography variant="h4" align="center" color="primary" sx={{ my: 3 }}>

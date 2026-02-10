@@ -1,3 +1,8 @@
+/**
+ * Componente de formulario para editar un museo existente.
+ * Permite modificar los datos de un museo y enviarlos al backend para su actualización.
+ * @module EditarMuseo
+ */
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Typography from "@mui/material/Typography";
@@ -19,10 +24,24 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
+/**
+ * Componente funcional que renderiza el formulario de edición de museos.
+ * Utiliza estados locales para gestionar los campos del formulario y el envío de datos.
+ * @returns {JSX.Element} Renderizado del formulario de edición de museo.
+ */
 function EditarMuseo() {
+  /**
+   * Hook de navegación para redireccionar tras la edición.
+   */
   const navigate = useNavigate();
-  const { id } = useParams(); // ID del museo desde la URL
+  /**
+   * Obtiene el ID del museo desde la URL.
+   */
+  const { id } = useParams();
 
+  /**
+   * Estado para los datos del museo a editar.
+   */
   const [museo, setMuseo] = useState({
     name: "",
     city: "",
@@ -31,6 +50,9 @@ function EditarMuseo() {
     opening_date: "",
   });
 
+  /**
+   * Estado para la validación de los campos del formulario.
+   */
   const [isCamposValidos, setIsCamposValidos] = useState({
     name: true,
     city: true,
@@ -39,12 +61,27 @@ function EditarMuseo() {
     opening_date: true,
   });
 
+  /**
+   * Estado para indicar si se está enviando el formulario.
+   */
   const [isUpdating, setIsUpdating] = useState(false);
+  /**
+   * Estado para controlar la apertura del diálogo de resultado.
+   */
   const [openDialog, setOpenDialog] = useState(false);
+  /**
+   * Mensaje mostrado en el diálogo de resultado.
+   */
   const [dialogMessage, setDialogMessage] = useState("");
+  /**
+   * Severidad del mensaje en el diálogo (success/error).
+   */
   const [dialogSeverity, setDialogSeverity] = useState("success");
 
   /* Cargar datos del museo al abrir el formulario */
+  /**
+   * Efecto que carga los datos del museo al montar el componente.
+   */
   useEffect(() => {
     async function fetchMuseum() {
       try {
@@ -63,6 +100,9 @@ function EditarMuseo() {
   }, [id]);
 
   /* Actualizar museo (PUT) */
+  /**
+   * Efecto que envía los datos editados al backend cuando isUpdating es true.
+   */
   useEffect(() => {
     async function fetchEditMuseum() {
       try {
@@ -98,20 +138,35 @@ function EditarMuseo() {
     if (isUpdating) fetchEditMuseum();
   }, [isUpdating, museo, id]);
 
+  /**
+   * Maneja el cambio de los campos del formulario.
+   * @param {React.ChangeEvent} e
+   */
   function handleChange(e) {
     setMuseo({ ...museo, [e.target.name]: e.target.value });
   }
 
+  /**
+   * Maneja el click en el botón de guardar cambios.
+   * Valida los datos y activa el envío si es válido.
+   */
   function handleClick() {
     if (isUpdating) return;
     if (validarDatos()) setIsUpdating(true);
   }
 
+  /**
+   * Cierra el diálogo de resultado y redirige si la operación fue exitosa.
+   */
   function handleDialogClose() {
     setOpenDialog(false);
     if (dialogSeverity === "success") navigate("/");
   }
 
+  /**
+   * Valida los datos del formulario y actualiza el estado de validación.
+   * @returns {boolean} true si los datos son válidos, false en caso contrario.
+   */
   function validarDatos() {
     let valido = true;
 
@@ -152,6 +207,7 @@ function EditarMuseo() {
     return valido;
   }
 
+  // Renderiza el formulario de edición de museo y el diálogo de resultado
   return (
     <>
       <Grid

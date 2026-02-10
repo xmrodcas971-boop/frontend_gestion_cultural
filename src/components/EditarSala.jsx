@@ -1,3 +1,8 @@
+/**
+ * Componente de formulario para editar una sala existente.
+ * Permite modificar los datos de una sala y enviarlos al backend para su actualización.
+ * @module EditarSala
+ */
 import { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import Typography from "@mui/material/Typography";
@@ -19,10 +24,24 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
+/**
+ * Componente funcional que renderiza el formulario de edición de salas.
+ * Utiliza estados locales para gestionar los campos del formulario y el envío de datos.
+ * @returns {JSX.Element} Renderizado del formulario de edición de sala.
+ */
 function EditarSala() {
+  /**
+   * Hook de navegación para redireccionar tras la edición.
+   */
   const navigate = useNavigate();
-  const { id } = useParams(); // ID de la sala desde la URL
+  /**
+   * Obtiene el ID de la sala desde la URL.
+   */
+  const { id } = useParams();
 
+  /**
+   * Estado para los datos de la sala a editar.
+   */
   const [sala, setSala] = useState({
     name: "",
     capacity: "",
@@ -32,8 +51,14 @@ function EditarSala() {
     museum_id: "",
   });
 
+  /**
+   * Estado para la lista de museos disponibles (para el desplegable).
+   */
   const [museos, setMuseos] = useState([]);
 
+  /**
+   * Estado para la validación de los campos del formulario.
+   */
   const [isCamposValidos, setIsCamposValidos] = useState({
     name: true,
     capacity: true,
@@ -43,12 +68,27 @@ function EditarSala() {
     museum_id: true,
   });
 
+  /**
+   * Estado para indicar si se está enviando el formulario.
+   */
   const [isUpdating, setIsUpdating] = useState(false);
+  /**
+   * Estado para controlar la apertura del diálogo de resultado.
+   */
   const [openDialog, setOpenDialog] = useState(false);
+  /**
+   * Mensaje mostrado en el diálogo de resultado.
+   */
   const [dialogMessage, setDialogMessage] = useState("");
+  /**
+   * Severidad del mensaje en el diálogo (success/error).
+   */
   const [dialogSeverity, setDialogSeverity] = useState("success");
 
   /* Cargar datos del museo al abrir el formulario */
+  /**
+   * Efecto que carga los datos de la sala al montar el componente.
+   */
   useEffect(() => {
     async function fetchRoom() {
       try {
@@ -67,6 +107,9 @@ function EditarSala() {
   }, [id]);
 
   /* Fetch de museos para el desplegable */
+  /**
+   * Efecto que carga la lista de museos para el desplegable al montar el componente.
+   */
   useEffect(() => {
     async function fetchMuseos() {
       try {
@@ -84,6 +127,9 @@ function EditarSala() {
   }, []);
 
   /* Actualizar sala (PUT) */
+  /**
+   * Efecto que envía los datos editados al backend cuando isUpdating es true.
+   */
   useEffect(() => {
     async function fetchEditRoom() {
       try {
@@ -119,20 +165,35 @@ function EditarSala() {
     if (isUpdating) fetchEditRoom();
   }, [isUpdating, sala, id]);
 
+  /**
+   * Maneja el cambio de los campos del formulario.
+   * @param {React.ChangeEvent} e
+   */
   function handleChange(e) {
     setSala({ ...sala, [e.target.name]: e.target.value });
   }
 
+  /**
+   * Maneja el click en el botón de guardar cambios.
+   * Valida los datos y activa el envío si es válido.
+   */
   function handleClick() {
     if (isUpdating) return;
     if (validarDatos()) setIsUpdating(true);
   }
 
+  /**
+   * Cierra el diálogo de resultado y redirige si la operación fue exitosa.
+   */
   function handleDialogClose() {
     setOpenDialog(false);
     if (dialogSeverity === "success") navigate("/");
   }
 
+  /**
+   * Valida los datos del formulario y actualiza el estado de validación.
+   * @returns {boolean} true si los datos son válidos, false en caso contrario.
+   */
   function validarDatos() {
     let valido = true;
 
@@ -179,6 +240,7 @@ function EditarSala() {
     return valido;
   }
 
+  // Renderiza el formulario de edición de sala y el diálogo de resultado
   return (
     <>
       <Grid container spacing={2} sx={{ justifyContent: "center", alignItems: "center" }}>
