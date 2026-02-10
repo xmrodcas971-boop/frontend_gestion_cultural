@@ -23,6 +23,9 @@ import Fab from "@mui/material/Fab";
 import BotonBorrar from "./BotonBorrar";
 import BotonEditar from "./BotonEditar";
 
+// --- CAMBIO 1: Importamos la instancia de API ---
+import api from "../api";
+
 // Si tienes el archivo CSS para ocultar elementos al imprimir, impórtalo aquí:
 // import styles from "../css/Impresion.module.css";
 
@@ -34,37 +37,29 @@ import BotonEditar from "./BotonEditar";
 function BusquedaMuseosFecha() {
   /**
    * Fecha de inicio del rango de búsqueda.
-   * @type {string}
    */
   const [from, setFrom] = useState("");
   /**
    * Fecha de fin del rango de búsqueda.
-   * @type {string}
    */
   const [to, setTo] = useState("");
 
   /**
    * Resultados de museos obtenidos tras la búsqueda.
-   * @type {Array<Object>}
    */
   const [datos, setDatos] = useState([]);
   /**
    * Mensaje de error en caso de fallo en la búsqueda.
-   * @type {string|null}
    */
   const [error, setError] = useState(null);
   /**
    * Indica si se ha realizado una búsqueda.
-   * @type {boolean}
    */
   const [buscado, setBuscado] = useState(false);
 
   /**
    * Realiza la petición al backend para buscar museos por fecha de apertura.
    * Valida los campos antes de enviar la petición.
-   * @async
-   * @function
-   * @returns {Promise<void>}
    */
   const handleBuscar = async () => {
     setBuscado(true);
@@ -83,20 +78,23 @@ function BusquedaMuseosFecha() {
       return;
     }
 
+    // --- CAMBIO 2: Uso de api.get en lugar de fetch ---
     try {
-      // Petición al backend para obtener museos en el rango de fechas
-      const response = await fetch(`http://localhost:3000/api/museums/between?from=${from}&to=${to}`);
+      // Usamos api.get con la URL relativa
+      const response = await api.get(`/museums/between?from=${from}&to=${to}`);
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setDatos(data.datos);
+      // Si la petición es exitosa, el interceptor nos da los datos directamente
+      if (response && response.datos) {
+        setDatos(response.datos);
       } else {
-        setError(data.mensaje || "No se encontraron museos");
+        setError("No se encontraron museos en ese rango");
+        setDatos([]);
       }
     } catch (e) {
-      // Manejo de errores de red o backend
-      setError("No se pudo conectar con el servidor" + e);
+      // Manejo de errores centralizado
+      console.error("Error al buscar por fecha:", e);
+      setError(e.mensaje || "No se pudo conectar con el servidor: " + e.toString());
+      setDatos([]);
     }
   };
 

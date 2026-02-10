@@ -26,6 +26,9 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
+// --- CAMBIO 1: Importamos la instancia de API ---
+import api from "../api"; 
+
 /**
  * Componente funcional que renderiza el formulario de alta de salas.
  * Utiliza estados locales para gestionar los campos del formulario y el envío de datos.
@@ -86,17 +89,22 @@ function AltaSala() {
   /* Fetch de museos para el desplegable */
   /**
    * Efecto que carga la lista de museos para el desplegable al montar el componente.
+   * --- CAMBIO 2: Uso de api.get en lugar de fetch ---
    */
   useEffect(() => {
     async function fetchMuseos() {
       try {
-        const response = await fetch("http://localhost:3000/api/museums/");
-        if (response.ok) {
-          const datos = await response.json();
-          setMuseos(datos.datos);
+        // Hacemos GET a /museums
+        const response = await api.get("/museums");
+        
+        // Si tu backend devuelve { ok: true, datos: [...] }, 
+        // y el interceptor devuelve response.data, entonces aquí response ya es el objeto JSON.
+        if (response && response.datos) {
+          setMuseos(response.datos);
         }
       } catch (e) {
-        console.error("Error cargando museos:", e.toString());
+        console.error("Error cargando museos:", e);
+        // Opcional: mostrar error al usuario si no cargan los museos
       }
     }
 
@@ -106,28 +114,23 @@ function AltaSala() {
   /* Post para crear la sala */
   /**
    * Efecto que envía los datos al backend cuando isUpdating es true.
+   * --- CAMBIO 3: Uso de api.post en lugar de fetch ---
    */
   useEffect(() => {
     async function fetchCreateRoom() {
       try {
-        const response = await fetch("http://localhost:3000/api/rooms/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(sala),
-        });
+        // Hacemos POST a /rooms enviando el objeto sala
+        const response = await api.post("/rooms", sala);
 
-        if (response.ok) {
-          let respuesta = await response.json();
-          setDialogMessage(respuesta.mensaje);
-          setDialogSeverity("success");
-          setOpenDialog(true);
-        } else {
-          setDialogMessage("Error del servidor");
-          setDialogSeverity("error");
-          setOpenDialog(true);
-        }
-      } catch (e) {
-        setDialogMessage(`Error de conexión: ${e.message || "desconocido"}`);
+        // Si llega aquí es éxito (status 2xx)
+        setDialogMessage(response.mensaje || "Sala creada correctamente");
+        setDialogSeverity("success");
+        setOpenDialog(true);
+
+      } catch (error) {
+        // Si llega aquí es error (capturado por el interceptor)
+        console.error("Error creando sala:", error);
+        setDialogMessage(error.mensaje || "Error al conectar con el servidor");
         setDialogSeverity("error");
         setOpenDialog(true);
       }

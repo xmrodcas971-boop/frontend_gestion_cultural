@@ -13,9 +13,13 @@ import TableRow from "@mui/material/TableRow";
 import Paper from "@mui/material/Paper";
 import Typography from "@mui/material/Typography";
 import Chip from "@mui/material/Chip";
+import Container from "@mui/material/Container";
 
 import BotonBorrar from "./BotonBorrar";
 import BotonEditar from "./BotonEditar";
+
+// --- CAMBIO 1: Importar api ---
+import api from "../api";
 
 /**
  * Componente principal para mostrar el listado de salas.
@@ -24,134 +28,132 @@ import BotonEditar from "./BotonEditar";
  */
 function ListadoSalas() {
   /**
-   * Datos de las salas obtenidos desde la API, incluyendo el nombre del museo asociado.
-   * @type {Array<Object>}
+   * Datos de las salas combinados con el nombre del museo.
    */
   const [datos, setDatos] = useState([]);
-  /**
-   * Mensaje de error en caso de fallo al obtener los datos.
-   * @type {string|null}
-   */
   const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
   /**
-   * Hook de efecto para obtener los datos de las salas y museos al cargar el componente.
-   * Llama a la función asíncrona fetchSalas una sola vez al montar el componente.
+   * Hook de efecto para obtener los datos.
+   * Usamos Promise.all para cargar salas y museos en paralelo.
    */
   useEffect(() => {
-    /**
-     * Función asíncrona para obtener los datos de las salas y asociar el nombre del museo.
-     * @async
-     * @function
-     * @returns {Promise<void>}
-     */
-    async function fetchSalas() {
+    async function fetchData() {
       try {
-        let responseSalas = await fetch("http://localhost:3000/api/rooms/");
+        // --- CAMBIO 2: Peticiones en paralelo ---
+        const [responseSalas, responseMuseos] = await Promise.all([
+          api.get("/rooms/"),
+          api.get("/museums/"),
+        ]);
 
-        if (responseSalas.ok) {
-          let datosSalas = await responseSalas.json();
+        const salas = responseSalas.datos || [];
+        const museos = responseMuseos.datos || [];
 
-          let responseMuseos = await fetch("http://localhost:3000/api/museums/");
+        // --- CAMBIO 3: Crear mapa de museos (ID -> Nombre) ---
+        const mapaMuseos = {};
+        museos.forEach((museo) => {
+          mapaMuseos[museo.museum_id] = museo.name;
+        });
 
-          if (responseMuseos.ok) {
-            let datosMuseos = await responseMuseos.json();
+        // --- CAMBIO 4: Combinar datos ---
+        const datosCompletos = salas.map((sala) => ({
+          ...sala,
+          museum_name: mapaMuseos[sala.museum_id] || "Desconocido",
+        }));
 
-            /* Crear mapa museum_id -> nombre */
-            const mapaMuseos = {};
-            datosMuseos.datos.forEach((museo) => {
-              mapaMuseos[museo.museum_id] = museo.name;
-            });
-
-            /* Salas con nombre del museo */
-            const salasConMuseo = datosSalas.datos.map((sala) => ({
-              ...sala,
-              museum_name: mapaMuseos[sala.museum_id] || "Desconocido",
-            }));
-
-            setDatos(salasConMuseo);
-            setError(null);
-          } else {
-            setError("Respuesta errónea del servidor (museos).");
-            setDatos([]);
-          }
-        } else {
-          setError("Respuesta errónea del servidor (salas).");
-          setDatos([]);
-        }
+        setDatos(datosCompletos);
+        setError(null);
       } catch (e) {
-        setError("No se pudo conectar al servidor: " + e.toString());
-        setDatos([]);
+        console.error(e);
+        setError(e.mensaje || "Error al cargar los datos del servidor.");
+      } finally {
+        setLoading(false);
       }
     }
 
-    fetchSalas();
+    fetchData();
   }, []);
 
-  // Renderizado de mensaje de error si ocurre algún problema al obtener los datos
-  if (error != null) {
+  // Manejo de errores
+  if (error) {
     return (
-      <Typography variant="h5" align="center" sx={{ mt: 3 }}>
+      <Typography variant="h5" align="center" color="error" sx={{ mt: 3 }}>
         {error}
       </Typography>
     );
   }
 
-  // Renderizado principal de la tabla de salas y controles
+  // Manejo de carga vacía
+  if (!loading && (!datos || datos.length === 0)) {
+    return (
+      <Typography variant="h5" align="center" sx={{ mt: 3 }}>
+        No hay salas registradas.
+      </Typography>
+    );
+  }
+
   return (
-    <>
+    <Container maxWidth="xl">
       <Typography variant="h4" align="center" color="primary" sx={{ my: 3 }}>
         Listado de salas
       </Typography>
 
-      <TableContainer component={Paper}>
+      <TableContainer component={Paper} elevation={3}>
         <Table stickyHeader aria-label="tabla salas">
           <TableHead>
             <TableRow>
-              <TableCell>Nombre</TableCell>
-              <TableCell align="right">Capacidad</TableCell>
-              <TableCell align="right">Área (m²)</TableCell>
-              <TableCell align="center">Climatizada</TableCell>
-              <TableCell align="center">Fecha apertura</TableCell>
-              <TableCell align="center">Museo</TableCell>
-              <TableCell align="center">Borrar</TableCell>
-              <TableCell align="center">Editar</TableCell>
+              <TableCell sx={{ fontWeight: "bold" }}>Nombre</TableCell>
+              <TableCell align="right" sx={{ fontWeight: "bold" }}>Capacidad</TableCell>
+              <TableCell align="right" sx={{ fontWeight: "bold" }}>Área (m²)</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>Climatizada</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>Fecha apertura</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>Museo</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>Borrar</TableCell>
+              <TableCell align="center" sx={{ fontWeight: "bold" }}>Editar</TableCell>
             </TableRow>
           </TableHead>
 
           <TableBody>
             {datos.map((row) => (
-              <TableRow key={row.room_id}>
+              <TableRow key={row.room_id} hover>
                 <TableCell>{row.name}</TableCell>
                 <TableCell align="right">{row.capacity}</TableCell>
                 <TableCell align="right">{row.area}</TableCell>
-                <TableCell align="center">
-                  <Chip label={row.is_climatized ? "Sí" : "No"} color={row.is_climatized ? "success" : "default"} size="small" />
-                </TableCell>
-                <TableCell align="center">{row.opening_date}</TableCell>
-
-                {/* Nombre del museo */}
-                <TableCell align="center">{row.museum_name}</TableCell>
                 
+                <TableCell align="center">
+                  <Chip 
+                    label={row.is_climatized ? "Sí" : "No"} 
+                    color={row.is_climatized ? "success" : "default"} 
+                    variant="outlined"
+                    size="small" 
+                  />
+                </TableCell>
+                
+                <TableCell align="center">
+                  {new Date(row.opening_date).toLocaleDateString()}
+                </TableCell>
+
+                {/* Nombre del museo calculado previamente */}
+                <TableCell align="center">
+                    <Chip label={row.museum_name} color="primary" variant="outlined" size="small" />
+                </TableCell>
+
                 {/* BOTÓN BORRAR */}
                 <TableCell align="center">
-                  <BotonBorrar 
-                  ruta="/rooms/" 
-                  id={row.room_id} />
+                  <BotonBorrar ruta="/rooms/" id={row.room_id} />
                 </TableCell>
 
                 {/* BOTÓN EDITAR */}
                 <TableCell align="center">
-                  <BotonEditar 
-                  ruta="/rooms/editar/"
-                  id={row.room_id} />
+                  <BotonEditar ruta="/rooms/editar/" id={row.room_id} />
                 </TableCell>
               </TableRow>
             ))}
           </TableBody>
         </Table>
       </TableContainer>
-    </>
+    </Container>
   );
 }
 

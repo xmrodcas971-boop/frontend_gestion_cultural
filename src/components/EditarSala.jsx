@@ -24,41 +24,29 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
+// --- CAMBIO 1: Importamos api ---
+import api from "../api";
+
 /**
  * Componente funcional que renderiza el formulario de edición de salas.
  * Utiliza estados locales para gestionar los campos del formulario y el envío de datos.
  * @returns {JSX.Element} Renderizado del formulario de edición de sala.
  */
 function EditarSala() {
-  /**
-   * Hook de navegación para redireccionar tras la edición.
-   */
   const navigate = useNavigate();
-  /**
-   * Obtiene el ID de la sala desde la URL.
-   */
   const { id } = useParams();
 
-  /**
-   * Estado para los datos de la sala a editar.
-   */
   const [sala, setSala] = useState({
     name: "",
     capacity: "",
     area: "",
     is_climatized: "",
-    opening_date: "",
+    opening_date: null,
     museum_id: "",
   });
 
-  /**
-   * Estado para la lista de museos disponibles (para el desplegable).
-   */
   const [museos, setMuseos] = useState([]);
 
-  /**
-   * Estado para la validación de los campos del formulario.
-   */
   const [isCamposValidos, setIsCamposValidos] = useState({
     name: true,
     capacity: true,
@@ -68,135 +56,82 @@ function EditarSala() {
     museum_id: true,
   });
 
-  /**
-   * Estado para indicar si se está enviando el formulario.
-   */
   const [isUpdating, setIsUpdating] = useState(false);
-  /**
-   * Estado para controlar la apertura del diálogo de resultado.
-   */
   const [openDialog, setOpenDialog] = useState(false);
-  /**
-   * Mensaje mostrado en el diálogo de resultado.
-   */
   const [dialogMessage, setDialogMessage] = useState("");
-  /**
-   * Severidad del mensaje en el diálogo (success/error).
-   */
   const [dialogSeverity, setDialogSeverity] = useState("success");
 
-  /* Cargar datos del museo al abrir el formulario */
-  /**
-   * Efecto que carga los datos de la sala al montar el componente.
-   */
+  /* Cargar datos de la SALA */
   useEffect(() => {
     async function fetchRoom() {
       try {
-        const response = await fetch(`http://localhost:3000/api/rooms/${id}`);
-        const json = await response.json();
-
-        if (json.ok) {
-          setSala(json.datos);
+        const response = await api.get(`/rooms/${id}`);
+        if (response && response.datos) {
+          setSala(response.datos);
         }
       } catch (e) {
         console.error("Error cargando sala", e);
+        setDialogMessage("No se pudieron cargar los datos de la sala");
+        setDialogSeverity("error");
+        setOpenDialog(true);
       }
     }
-
     fetchRoom();
   }, [id]);
 
-  /* Fetch de museos para el desplegable */
-  /**
-   * Efecto que carga la lista de museos para el desplegable al montar el componente.
-   */
+  /* Cargar lista de MUSEOS para el desplegable */
   useEffect(() => {
     async function fetchMuseos() {
       try {
-        const response = await fetch("http://localhost:3000/api/museums/");
-        if (response.ok) {
-          const datos = await response.json();
-          setMuseos(datos.datos);
+        const response = await api.get("/museums/");
+        if (response && response.datos) {
+          setMuseos(response.datos);
         }
       } catch (e) {
         console.error("Error cargando museos:", e);
+        // No bloqueamos la edición, pero avisamos si es crítico o simplemente el select estará vacío
       }
     }
-
     fetchMuseos();
   }, []);
 
   /* Actualizar sala (PUT) */
-  /**
-   * Efecto que envía los datos editados al backend cuando isUpdating es true.
-   */
   useEffect(() => {
     async function fetchEditRoom() {
       try {
-        const response = await fetch(`http://localhost:3000/api/rooms/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(sala),
-        });
-
-        if (response.ok) {
-          let respuesta = await response.json();
-          setDialogMessage(respuesta.mensaje);
-          setDialogSeverity("success");
-          setOpenDialog(true);
-        } else if (response.status === 404) {
-          setDialogMessage("Sala no encontrada");
-          setDialogSeverity("error");
-          setOpenDialog(true);
-        } else {
-          setDialogMessage("Error del servidor");
-          setDialogSeverity("error");
-          setOpenDialog(true);
-        }
+        await api.put(`/rooms/${id}`, sala);
+        
+        setDialogMessage("Sala actualizada correctamente");
+        setDialogSeverity("success");
+        setOpenDialog(true);
       } catch (e) {
-        setDialogMessage(`Error de conexión: ${e.message || "desconocido"}`);
+        setDialogMessage(e.mensaje || "Error al actualizar la sala");
         setDialogSeverity("error");
         setOpenDialog(true);
+      } finally {
+        setIsUpdating(false);
       }
-
-      setIsUpdating(false);
     }
 
     if (isUpdating) fetchEditRoom();
   }, [isUpdating, sala, id]);
 
-  /**
-   * Maneja el cambio de los campos del formulario.
-   * @param {React.ChangeEvent} e
-   */
   function handleChange(e) {
     setSala({ ...sala, [e.target.name]: e.target.value });
   }
 
-  /**
-   * Maneja el click en el botón de guardar cambios.
-   * Valida los datos y activa el envío si es válido.
-   */
   function handleClick() {
     if (isUpdating) return;
     if (validarDatos()) setIsUpdating(true);
   }
 
-  /**
-   * Cierra el diálogo de resultado y redirige si la operación fue exitosa.
-   */
   function handleDialogClose() {
     setOpenDialog(false);
-    if (dialogSeverity === "success") navigate("/");
+    if (dialogSeverity === "success") navigate("/rooms"); // Redirige a la lista de salas
   }
 
-  /**
-   * Valida los datos del formulario y actualiza el estado de validación.
-   * @returns {boolean} true si los datos son válidos, false en caso contrario.
-   */
   function validarDatos() {
     let valido = true;
-
     let validacion = {
       name: true,
       capacity: true,
@@ -221,7 +156,8 @@ function EditarSala() {
       valido = false;
     }
 
-    if (sala.is_climatized !== true && sala.is_climatized !== false) {
+    // Validación flexible para booleanos (puede venir como true/false o "true"/"false")
+    if (sala.is_climatized !== true && sala.is_climatized !== false && sala.is_climatized !== "true" && sala.is_climatized !== "false") {
       validacion.is_climatized = false;
       valido = false;
     }
@@ -231,7 +167,7 @@ function EditarSala() {
       valido = false;
     }
 
-    if (sala.museum_id === "" || isNaN(sala.museum_id) || Number(sala.museum_id) <= 0) {
+    if (!sala.museum_id) {
       validacion.museum_id = false;
       valido = false;
     }
@@ -240,18 +176,17 @@ function EditarSala() {
     return valido;
   }
 
-  // Renderiza el formulario de edición de sala y el diálogo de resultado
   return (
     <>
       <Grid container spacing={2} sx={{ justifyContent: "center", alignItems: "center" }}>
-        <Grid item size={{ xs: 12, sm: 9, md: 7 }}>
+        <Grid item xs={12} sm={9} md={7}>
           <Paper elevation={6} sx={{ mt: 3, p: 3, maxWidth: 900, mx: "auto" }}>
             <Typography variant="h4" align="center" color="primary" sx={{ mb: 3 }}>
-              Editar de sala
+              Editar sala
             </Typography>
 
             <Grid container spacing={2} sx={{ justifyContent: "center" }}>
-              <Grid item size={{ xs: 10, md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <TextField
                   required
                   fullWidth
@@ -264,7 +199,7 @@ function EditarSala() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10, md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <TextField
                   required
                   fullWidth
@@ -278,7 +213,7 @@ function EditarSala() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10, md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <TextField
                   required
                   fullWidth
@@ -292,33 +227,33 @@ function EditarSala() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10, md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <TextField
                   required
                   select
                   fullWidth
                   label="Climatizada"
-                  value={sala.is_climatized}
-                  onChange={(e) => setSala({ ...sala, is_climatized: e.target.value === "true" })}
+                  name="is_climatized"
+                  // Controlamos que el valor sea compatible con los MenuItems
+                  value={sala.is_climatized === "" ? "" : sala.is_climatized}
+                  onChange={(e) => setSala({ ...sala, is_climatized: e.target.value })}
                   error={!isCamposValidos.is_climatized}
                 >
-                  <MenuItem value="">
-                    <em>Seleccione una opción</em>
-                  </MenuItem>
-                  <MenuItem value="true">Sí</MenuItem>
-                  <MenuItem value="false">No</MenuItem>
+                  <MenuItem value={true}>Sí</MenuItem>
+                  <MenuItem value={false}>No</MenuItem>
                 </TextField>
               </Grid>
 
-              <Grid item size={{ xs: 10, md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                   <DatePicker
                     label="Fecha de apertura"
                     value={sala.opening_date ? dayjs(sala.opening_date) : null}
-                    onChange={(newValue) => setSala({ ...sala, opening_date: newValue.format("YYYY-MM-DD") })}
+                    onChange={(newValue) => setSala({ ...sala, opening_date: newValue ? newValue.format("YYYY-MM-DD") : null })}
                     slotProps={{
                       textField: {
                         required: true,
+                        fullWidth: true,
                         error: !isCamposValidos.opening_date,
                         helperText: !isCamposValidos.opening_date ? "La fecha es obligatoria" : "",
                       },
@@ -328,7 +263,7 @@ function EditarSala() {
               </Grid>
 
               {/* DESPLEGABLE DE MUSEOS */}
-              <Grid item size={{ xs: 10, md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <TextField
                   required
                   select
@@ -352,9 +287,9 @@ function EditarSala() {
                 </TextField>
               </Grid>
 
-              <Grid item size={{ xs: 10 }} sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Button variant="contained" sx={{ mt: 3 }} loading={isUpdating} loadingPosition="end" onClick={handleClick}>
-                  Guardar cambios
+              <Grid item xs={10} sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button variant="contained" sx={{ mt: 3 }} disabled={isUpdating} onClick={handleClick}>
+                  {isUpdating ? "Guardando..." : "Guardar cambios"}
                 </Button>
               </Grid>
             </Grid>
@@ -364,8 +299,10 @@ function EditarSala() {
 
       <Dialog open={openDialog} onClose={handleDialogClose}>
         <DialogTitle>{dialogSeverity === "success" ? "Operación correcta" : "Error"}</DialogTitle>
-        <DialogContent>
-          <Alert severity={dialogSeverity}>{dialogMessage}</Alert>
+        <DialogContent dividers>
+          <Alert severity={dialogSeverity} variant="filled">
+            {dialogMessage}
+          </Alert>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>OK</Button>

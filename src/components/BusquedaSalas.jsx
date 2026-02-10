@@ -21,6 +21,9 @@ import Chip from "@mui/material/Chip";
 import BotonBorrar from "./BotonBorrar";
 import BotonEditar from "./BotonEditar";
 
+// --- CAMBIO 1: Importar api ---
+import api from "../api";
+
 /**
  * Componente principal para la búsqueda de salas por área.
  * Utiliza estados para gestionar los valores del formulario, los resultados y los errores.
@@ -29,36 +32,28 @@ import BotonEditar from "./BotonEditar";
 function BusquedaSalas() {
   /**
    * Área mínima introducida por el usuario.
-   * @type {string}
    */
   const [min, setMin] = useState("");
   /**
    * Área máxima introducida por el usuario.
-   * @type {string}
    */
   const [max, setMax] = useState("");
   /**
    * Resultados de salas obtenidos tras la búsqueda.
-   * @type {Array<Object>}
    */
   const [datos, setDatos] = useState([]);
   /**
    * Mensaje de error en caso de fallo en la búsqueda.
-   * @type {string|null}
    */
   const [error, setError] = useState(null);
   /**
    * Indica si se ha realizado una búsqueda.
-   * @type {boolean}
    */
   const [buscado, setBuscado] = useState(false);
 
   /**
    * Realiza la petición al backend para buscar salas por área.
    * Valida los campos antes de enviar la petición.
-   * @async
-   * @function
-   * @returns {Promise<void>}
    */
   const handleBuscar = async () => {
     setBuscado(true);
@@ -78,40 +73,39 @@ function BusquedaSalas() {
     }
 
     try {
-      // Petición al backend para obtener salas en el rango de área
-      const responseSalas = await fetch(`http://localhost:3000/api/rooms/area?min=${min}&max=${max}`);
-
-      if (!responseSalas.ok) {
-        const err = await responseSalas.json();
-        setError(err.mensaje || "No se encontraron salas");
-        return;
+      // --- CAMBIO 2: Petición de salas usando api.get ---
+      // El interceptor ya nos devuelve los datos parseados
+      const responseSalas = await api.get(`/rooms/area?min=${min}&max=${max}`);
+      
+      // Verificamos si hay datos de salas
+      if (!responseSalas || !responseSalas.datos) {
+         setError("No se encontraron salas en ese rango");
+         return;
       }
+      const listaSalas = responseSalas.datos;
 
-      const datosSalas = await responseSalas.json();
-      // Buscar museos para asociar nombre a cada sala
-      const responseMuseos = await fetch("http://localhost:3000/api/museums/");
-
-      if (!responseMuseos.ok) {
-        setError("Error al obtener los museos");
-        return;
-      }
-
-      const datosMuseos = await responseMuseos.json();
+      // --- CAMBIO 3: Petición de museos para obtener los nombres ---
+      const responseMuseos = await api.get("/museums/");
+      const listaMuseos = responseMuseos.datos || [];
 
       /* Crear mapa museum_id -> nombre */
       const mapaMuseos = {};
-      datosMuseos.datos.forEach((museo) => {
+      listaMuseos.forEach((museo) => {
         mapaMuseos[museo.museum_id] = museo.name;
       });
 
-      /* Salas con nombre del museo */
-      const salasConMuseo = datosSalas.datos.map((sala) => ({
+      /* Cruzar datos: Salas con nombre del museo */
+      const salasConMuseo = listaSalas.map((sala) => ({
         ...sala,
         museum_name: mapaMuseos[sala.museum_id] || "Desconocido",
       }));
+
       setDatos(salasConMuseo);
+
     } catch (e) {
-      setError("No se pudo conectar con el servidor: " + e.toString());
+      console.error(e);
+      // El mensaje de error viene del interceptor o es un error de red
+      setError(e.mensaje || "No se pudo conectar con el servidor: " + e.toString());
     }
   };
 

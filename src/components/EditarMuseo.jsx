@@ -24,35 +24,26 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
+// --- CAMBIO 1: Importamos la instancia de API ---
+import api from "../api";
+
 /**
  * Componente funcional que renderiza el formulario de edición de museos.
  * Utiliza estados locales para gestionar los campos del formulario y el envío de datos.
  * @returns {JSX.Element} Renderizado del formulario de edición de museo.
  */
 function EditarMuseo() {
-  /**
-   * Hook de navegación para redireccionar tras la edición.
-   */
   const navigate = useNavigate();
-  /**
-   * Obtiene el ID del museo desde la URL.
-   */
   const { id } = useParams();
 
-  /**
-   * Estado para los datos del museo a editar.
-   */
   const [museo, setMuseo] = useState({
     name: "",
     city: "",
     annual_budget: "",
-    is_public: "",
-    opening_date: "",
+    is_public: "", // Inicialmente string vacío o booleano
+    opening_date: null,
   });
 
-  /**
-   * Estado para la validación de los campos del formulario.
-   */
   const [isCamposValidos, setIsCamposValidos] = useState({
     name: true,
     city: true,
@@ -61,115 +52,71 @@ function EditarMuseo() {
     opening_date: true,
   });
 
-  /**
-   * Estado para indicar si se está enviando el formulario.
-   */
   const [isUpdating, setIsUpdating] = useState(false);
-  /**
-   * Estado para controlar la apertura del diálogo de resultado.
-   */
   const [openDialog, setOpenDialog] = useState(false);
-  /**
-   * Mensaje mostrado en el diálogo de resultado.
-   */
   const [dialogMessage, setDialogMessage] = useState("");
-  /**
-   * Severidad del mensaje en el diálogo (success/error).
-   */
   const [dialogSeverity, setDialogSeverity] = useState("success");
 
-  /* Cargar datos del museo al abrir el formulario */
-  /**
-   * Efecto que carga los datos del museo al montar el componente.
-   */
+  // --- CAMBIO 2: Cargar datos con api.get ---
   useEffect(() => {
     async function fetchMuseum() {
       try {
-        const response = await fetch(`http://localhost:3000/api/museums/${id}`);
-        const json = await response.json();
-
-        if (json.ok) {
-          setMuseo(json.datos);
+        const response = await api.get(`/museums/${id}`);
+        // El interceptor devuelve directamente la respuesta parseada
+        if (response && response.datos) {
+          setMuseo(response.datos);
         }
       } catch (e) {
         console.error("Error cargando museo", e);
+        setDialogMessage("No se pudo cargar la información del museo");
+        setDialogSeverity("error");
+        setOpenDialog(true);
       }
     }
 
     fetchMuseum();
   }, [id]);
 
-  /* Actualizar museo (PUT) */
-  /**
-   * Efecto que envía los datos editados al backend cuando isUpdating es true.
-   */
+  // --- CAMBIO 3: Actualizar datos con api.put ---
   useEffect(() => {
     async function fetchEditMuseum() {
       try {
-        const response = await fetch(`http://localhost:3000/api/museums/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(museo),
-        });
+        // api.put ya gestiona headers y JSON.stringify
+        await api.put(`/museums/${id}`, museo);
 
-        if (response.ok) {
-          const respuesta = await response.json();
-          setDialogMessage(respuesta.mensaje);
-          setDialogSeverity("success");
-          setOpenDialog(true);
-        } else if (response.status === 404) {
-          setDialogMessage("Museo no encontrado");
-          setDialogSeverity("error");
-          setOpenDialog(true);
-        } else {
-          setDialogMessage("Error del servidor");
-          setDialogSeverity("error");
-          setOpenDialog(true);
-        }
+        // Si no lanza error, asumimos éxito
+        setDialogMessage("Museo actualizado correctamente");
+        setDialogSeverity("success");
+        setOpenDialog(true);
       } catch (e) {
-        setDialogMessage(`Error de conexión: ${e.message || "desconocido"}`);
+        // El mensaje de error viene del backend a través del interceptor
+        setDialogMessage(e.mensaje || "Error al actualizar el museo");
         setDialogSeverity("error");
         setOpenDialog(true);
+      } finally {
+        setIsUpdating(false);
       }
-
-      setIsUpdating(false);
     }
 
     if (isUpdating) fetchEditMuseum();
   }, [isUpdating, museo, id]);
 
-  /**
-   * Maneja el cambio de los campos del formulario.
-   * @param {React.ChangeEvent} e
-   */
   function handleChange(e) {
     setMuseo({ ...museo, [e.target.name]: e.target.value });
   }
 
-  /**
-   * Maneja el click en el botón de guardar cambios.
-   * Valida los datos y activa el envío si es válido.
-   */
   function handleClick() {
     if (isUpdating) return;
     if (validarDatos()) setIsUpdating(true);
   }
 
-  /**
-   * Cierra el diálogo de resultado y redirige si la operación fue exitosa.
-   */
   function handleDialogClose() {
     setOpenDialog(false);
-    if (dialogSeverity === "success") navigate("/");
+    if (dialogSeverity === "success") navigate("/museums"); // Redirige a la lista
   }
 
-  /**
-   * Valida los datos del formulario y actualiza el estado de validación.
-   * @returns {boolean} true si los datos son válidos, false en caso contrario.
-   */
   function validarDatos() {
     let valido = true;
-
     let validacion = {
       name: true,
       city: true,
@@ -193,7 +140,8 @@ function EditarMuseo() {
       valido = false;
     }
 
-    if (museo.is_public !== true && museo.is_public !== false) {
+    // Comprobamos explícitamente true/false porque es booleano
+    if (museo.is_public !== true && museo.is_public !== false && museo.is_public !== "true" && museo.is_public !== "false") {
       validacion.is_public = false;
       valido = false;
     }
@@ -207,7 +155,6 @@ function EditarMuseo() {
     return valido;
   }
 
-  // Renderiza el formulario de edición de museo y el diálogo de resultado
   return (
     <>
       <Grid
@@ -218,7 +165,7 @@ function EditarMuseo() {
           alignItems: "center",
         }}
       >
-        <Grid item size={{ xs: 12, sm: 9, md: 7 }}>
+        <Grid item xs={12} sm={9} md={7}>
           <Paper elevation={6} sx={{ mt: 3, p: 3, maxWidth: 900, mx: "auto" }}>
             <Typography variant="h4" align="center" color="primary" sx={{ mb: 3 }}>
               Editar museo
@@ -232,7 +179,7 @@ function EditarMuseo() {
                 alignItems: "center",
               }}
             >
-              <Grid item size={{ xs: 10, md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <TextField
                   required
                   fullWidth
@@ -245,7 +192,7 @@ function EditarMuseo() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10, md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <TextField
                   required
                   fullWidth
@@ -258,7 +205,7 @@ function EditarMuseo() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10, md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <TextField
                   required
                   fullWidth
@@ -272,30 +219,29 @@ function EditarMuseo() {
                 />
               </Grid>
 
-              <Grid item size={{ xs: 10, md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <TextField
                   required
                   select
                   fullWidth
                   label="Museo público"
-                  value={museo.is_public}
+                  name="is_public"
+                  // Aseguramos que el value sea compatible con las opciones
+                  value={museo.is_public === "" ? "" : museo.is_public}
                   onChange={(e) =>
                     setMuseo({
                       ...museo,
-                      is_public: e.target.value === "true",
+                      is_public: e.target.value, // React mantiene el tipo (booleano) si el value del MenuItem es booleano
                     })
                   }
                   error={!isCamposValidos.is_public}
                 >
-                  <MenuItem value="">
-                    <em>Seleccione una opción</em>
-                  </MenuItem>
-                  <MenuItem value="true">Sí</MenuItem>
-                  <MenuItem value="false">No</MenuItem>
+                  <MenuItem value={true}>Sí</MenuItem>
+                  <MenuItem value={false}>No</MenuItem>
                 </TextField>
               </Grid>
 
-              <Grid item size={{ xs: 10 , md: 6 }}>
+              <Grid item xs={10} md={6}>
                 <LocalizationProvider dateAdapter={AdapterDayjs} adapterLocale="es">
                   <DatePicker
                     label="Fecha de apertura"
@@ -303,12 +249,13 @@ function EditarMuseo() {
                     onChange={(newValue) =>
                       setMuseo({
                         ...museo,
-                        opening_date: newValue.format("YYYY-MM-DD"),
+                        opening_date: newValue ? newValue.format("YYYY-MM-DD") : null,
                       })
                     }
                     slotProps={{
                       textField: {
                         required: true,
+                        fullWidth: true,
                         error: !isCamposValidos.opening_date,
                         helperText: !isCamposValidos.opening_date ? "La fecha es obligatoria" : "",
                       },
@@ -317,9 +264,9 @@ function EditarMuseo() {
                 </LocalizationProvider>
               </Grid>
 
-              <Grid item size={{ xs: 10 }} sx={{ display: "flex", justifyContent: "flex-end" }}>
-                <Button variant="contained" sx={{ mt: 3 }} loading={isUpdating} loadingPosition="end" onClick={handleClick}>
-                  Guardar cambios
+              <Grid item xs={10} sx={{ display: "flex", justifyContent: "flex-end" }}>
+                <Button variant="contained" sx={{ mt: 3 }} disabled={isUpdating} onClick={handleClick}>
+                  {isUpdating ? "Guardando..." : "Guardar cambios"}
                 </Button>
               </Grid>
             </Grid>
@@ -327,8 +274,8 @@ function EditarMuseo() {
         </Grid>
       </Grid>
 
-      <Dialog open={openDialog} onClose={handleDialogClose} disableEscapeKeyDown aria-labelledby="result-dialog-title">
-        <DialogTitle id="result-dialog-title">{dialogSeverity === "success" ? "Operación correcta" : "Error"}</DialogTitle>
+      <Dialog open={openDialog} onClose={handleDialogClose}>
+        <DialogTitle>{dialogSeverity === "success" ? "Operación correcta" : "Error"}</DialogTitle>
         <DialogContent dividers>
           <Alert severity={dialogSeverity} variant="filled">
             {dialogMessage}

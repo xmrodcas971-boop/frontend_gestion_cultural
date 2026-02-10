@@ -22,10 +22,13 @@ import Box from "@mui/material/Box";
 import Fab from "@mui/material/Fab";
 import DownloadIcon from "@mui/icons-material/Download";
 import { PDFDownloadLink } from "@react-pdf/renderer";
-import BusquedaMuseosPDF from "./BusquedaMuseosPDF"; // El diseño que creamos antes
+import BusquedaMuseosPDF from "./BusquedaMuseosPDF";
 
 import BotonBorrar from "./BotonBorrar";
 import BotonEditar from "./BotonEditar";
+
+// --- CAMBIO 1: Importamos la instancia de API ---
+import api from "../api";
 
 /**
  * Componente principal para la búsqueda de museos por presupuesto.
@@ -35,36 +38,28 @@ import BotonEditar from "./BotonEditar";
 function BusquedaMuseos() {
   /**
    * Presupuesto mínimo introducido por el usuario.
-   * @type {string}
    */
   const [min, setMin] = useState("");
   /**
    * Presupuesto máximo introducido por el usuario.
-   * @type {string}
    */
   const [max, setMax] = useState("");
   /**
    * Resultados de museos obtenidos tras la búsqueda.
-   * @type {Array<Object>}
    */
   const [datos, setDatos] = useState([]);
   /**
    * Mensaje de error en caso de fallo en la búsqueda.
-   * @type {string|null}
    */
   const [error, setError] = useState(null);
   /**
    * Indica si se ha realizado una búsqueda.
-   * @type {boolean}
    */
   const [buscado, setBuscado] = useState(false);
 
   /**
    * Realiza la petición al backend para buscar museos por presupuesto.
    * Valida los campos antes de enviar la petición.
-   * @async
-   * @function
-   * @returns {Promise<void>}
    */
   const handleBuscar = async () => {
     setBuscado(true);
@@ -83,18 +78,25 @@ function BusquedaMuseos() {
       return;
     }
 
+    // --- CAMBIO 2: Uso de api.get en lugar de fetch ---
     try {
-      // Petición al backend para obtener museos en el rango de presupuesto
-      const response = await fetch(`http://localhost:3000/api/museums/budget?min=${min}&max=${max}`);
-      const data = await response.json();
-      if (response.ok) {
-        setDatos(data.datos);
+      // Petición al backend usando la instancia api configurada
+      const response = await api.get(`/museums/budget?min=${min}&max=${max}`);
+      
+      // Si llega aquí, la respuesta es exitosa (status 200)
+      // Y response ya contiene los datos gracias al interceptor
+      if (response && response.datos) {
+        setDatos(response.datos);
       } else {
-        setError(data.mensaje || "No se encontraron museos");
+        // Si la respuesta viene vacía o sin el formato esperado
+        setDatos([]);
+        setError("No se encontraron resultados");
       }
     } catch (e) {
-      // Manejo de errores de red o backend
-      setError("No se pudo conectar con el servidor" + e.toString());
+      // Manejo de errores centralizado
+      // e.mensaje vendrá del interceptor si el backend devolvió error
+      setError(e.mensaje || "No se pudo conectar con el servidor: " + e.toString());
+      setDatos([]);
     }
   };
 

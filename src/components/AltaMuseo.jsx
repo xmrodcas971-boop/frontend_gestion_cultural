@@ -26,6 +26,10 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs from "dayjs";
 import "dayjs/locale/es";
 
+// --- CAMBIO 1: Importamos tu instancia de API configurada ---
+// Ajusta la ruta "../api" si tu archivo api.js está en otro lugar
+import api from "../api"; 
+
 /**
  * Componente funcional que renderiza el formulario de alta de museos.
  * Utiliza estados locales para gestionar los campos del formulario y el envío de datos.
@@ -78,30 +82,23 @@ function AltaMuseo() {
 
   /**
    * Efecto que envía los datos al backend cuando isUpdating es true.
+   * --- CAMBIO 2: Lógica actualizada para usar 'api' en vez de 'fetch' ---
    */
   useEffect(() => {
     async function fetchCreateMuseum() {
       try {
-        const response = await fetch("http://localhost:3000/api/museums/", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(museo),
-        });
+        // Usamos api.post. La URL base ya está en api.js, solo ponemos el endpoint
+        const response = await api.post("/museums", museo);
 
-        if (response.ok) {
-          let respuesta = await response.json();
-          setDialogMessage(respuesta.mensaje);
-          setDialogSeverity("success");
-          setOpenDialog(true);
-        } else {
-          console.error(`Error ${response.status}:`, response.statusText);
-          setDialogMessage("Error del servidor");
-          setDialogSeverity("error");
-          setOpenDialog(true);
-        }
-      } catch (e) {
-        console.error("Error en fetch:", e);
-        setDialogMessage(`Error de conexión: ${e.message || "desconocido"}`);
+        // Si llega aquí, es que la respuesta fue exitosa (el interceptor ya extrajo response.data)
+        setDialogMessage(response.mensaje || "Museo creado correctamente");
+        setDialogSeverity("success");
+        setOpenDialog(true);
+        
+      } catch (error) {
+        // Si falla, capturamos el error procesado por tu interceptor
+        console.error("Error en la petición:", error);
+        setDialogMessage(error.mensaje || "Error al conectar con el servidor");
         setDialogSeverity("error");
         setOpenDialog(true);
       }
