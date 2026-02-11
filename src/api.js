@@ -17,9 +17,6 @@ const api = axios.create({
   },
 });
 
-/**
- * Interceptor de respuesta (esto déjalo igual, está perfecto)
- */
 api.interceptors.response.use(
   (response) => {
     return response.data;
